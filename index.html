@@ -11,58 +11,162 @@
         margin-left: 100px;
     }
   </style>
+
     <script type="text/javascript">
       function draw(data) {
-      
       /*
         D3.js setup code
       */
-
           "use strict";
           var margin = 75,
               width = 1500 - margin,
               height = 800 - margin;
-          
-          debugger;
+          // Toggle variable to keep track of which display is active    
+          var display_weight = false;
           
           d3.select("body")
             .append("h2")
-            .text("Total HRs for Batting Average Categories by Type of Batter (Left, Right, Switch)");
+            .text("Average HRs for Batting Average Categories by Weight of Player");
+            
+          d3.select("body")
+            .append("center")
+            .append("button")
+            .attr("id", "btn").style("margin-right", "75%")
+            .text("Switch to Handedness");
+            
           var svg = d3.select("body")
             .append("svg")
               .attr("width", width + margin)
               .attr("height", height + margin)
             .append('g')
                 .attr('class','chart');
-            
-      /*
-        Dimple.js Chart construction code
-      */
-
+                
+          // Create initial chart using Weight  
           var myChart = new dimple.chart(svg, data);
-          var x = myChart.addCategoryAxis("x", "avg_cat");
-          x.addOrderRule(["[0.1,0.125]", "(0.125,0.15]", "(0.15,0.175]", 
-                          "(0.175,0.2]", "(0.2,0.225]", "(0.225,0.25]",
-                          "(0.25,0.275]", "(0.275,0.3]", "(0.3,0.325]", 
-                          "(0.325,0.35]"])
-          var y = myChart.addMeasureAxis("y", "HR");
-          //x.ticks = 5;
-          //y.ticks = 5;
-          //var z = myChart.addAxis("z", "avg_cat")
-          //var c = myChart.addColorAxis("HR", null)
-          //x.dateParseFormat = "%Y";
-          //x.tickFormat = "%Y";
-          //x.timeInterval = 4;
-         // myChart.addSeries(null, dimple.plot.line);
-          var mySeries = myChart.addSeries("batting", dimple.plot.scatter);
-          var mySeries2 = myChart.addSeries("batting", dimple.plot.line);
+          
+          var x = myChart.addCategoryAxis("x", "Batting Average");
+          x.title = "Batting Average";
+          x.showGridlines = false;
+          x.fontSize = "auto";
+          x.addOrderRule([".100 - .125", ".126 - .150", ".151 - .175", ".176 - .200",
+                   ".201 - .225", ".226 - .250", ".251 - .275", ".276 - .300",
+                   ".301 - .325", ".326 - .350"]);
+               
+          var y = myChart.addMeasureAxis("y", "Home Runs");
+          y.title = "Average Home Runs"
+          y.showGridlines = false;
+          y.fontSize = "auto";
+          
+          var mySeries = myChart.addSeries("Weight Classification", dimple.plot.scatter);
+          var mySeries2 = myChart.addSeries("Weight Classification", dimple.plot.line);
           mySeries.aggregate = dimple.aggregateMethod.avg;
           mySeries2.aggregate = dimple.aggregateMethod.avg;
-          myChart.addLegend(500, 500, 100, 100)
+          
+          var myLegend = myChart.addLegend(450, 500, 100, 100, "left", mySeries);
+          myLegend.fontSize = "auto";
+          
           myChart.draw();
+          
+          // Modify the order of the legend entries
+          var medium = d3.select("g.dimple-legend.dimple-medium----170----200-");
+          var heavy = d3.select("g.dimple-legend.dimple-heavy----200-");
+          var light = d3.select("g.dimple-legend.dimple-light----170-");
+          
+          var top_y_text = medium.select("text").attr("y");
+          var top_y_rect = medium.select("rect").attr("y");
+          var middle_y_text = heavy.select("text").attr("y");
+          var middle_y_rect = heavy.select("rect").attr("y");
+          var bottom_y_text = light.select("text"). attr("y");
+          var bottom_y_rect = light.select("rect").attr("y");
+          
+          heavy.select("text").attr("y", top_y_text);
+          heavy.select("rect").attr("y", top_y_rect);
+          medium.select("text").attr("y", middle_y_text);
+          medium.select("rect").attr("y", middle_y_rect);
+          
+          d3.select("#btn").on("click", function() {
+                if (display_weight) {
+                    svg.selectAll('*').remove();
+                    var myChart = new dimple.chart(svg, data);
+                    var x = myChart.addCategoryAxis("x", "Batting Average");
+                    x.title = "Batting Average";
+                    x.showGridlines = false;
+                    x.fontSize = "auto";
+                    x.addOrderRule([".100 - .125", ".126 - .150", ".151 - .175", ".176 - .200",
+                   ".201 - .225", ".226 - .250", ".251 - .275", ".276 - .300",
+                   ".301 - .325", ".326 - .350"]);
+                   var y = myChart.addMeasureAxis("y", "Home Runs");
+                   y.title = "Average Home Runs"
+                   y.showGridlines = false;
+                   y.fontSize = "auto";
+                   mySeries = myChart.addSeries("Weight Classification", dimple.plot.scatter);
+                   mySeries2 = myChart.addSeries("Weight Classification", dimple.plot.line);
+                   mySeries.aggregate = dimple.aggregateMethod.avg;
+                   mySeries2.aggregate = dimple.aggregateMethod.avg;
+          
+                   var myLegend = myChart.addLegend(450, 500, 100, 100, "left", mySeries);
+                    myLegend.fontSize = "auto";
+                   myChart.draw(500);
+                   
+                   // Modify the order of the legend entries
+                   var medium = d3.select("g.dimple-legend.dimple-medium----170----200-");
+                   var heavy = d3.select("g.dimple-legend.dimple-heavy----200-");
+                   var light = d3.select("g.dimple-legend.dimple-light----170-");
+          
+                   var top_y_text = medium.select("text").attr("y");
+                   var top_y_rect = medium.select("rect").attr("y");
+                   var middle_y_text = heavy.select("text").attr("y");
+                   var middle_y_rect = heavy.select("rect").attr("y");
+                   var bottom_y_text = light.select("text"). attr("y");
+                   var bottom_y_rect = light.select("rect").attr("y");
+          
+                   heavy.select("text").attr("y", top_y_text);
+                   heavy.select("rect").attr("y", top_y_rect);
+                   medium.select("text").attr("y", middle_y_text);
+                   medium.select("rect").attr("y", middle_y_rect);
+                   
+                   display_weight = false;
+                   
+                   d3.select("#btn").text(" Switch to Handedness");
+                   
+                   d3.select("body h2")
+                     .text("Average HRs for Batting Average Categories by Weight of Player");
+
+                } else {
+                    svg.selectAll('*').remove();
+                   
+                   var myChart = new dimple.chart(svg, data);
+                    var x = myChart.addCategoryAxis("x", "Batting Average");
+                    x.title = "Batting Average";
+                    x.fontSize = "auto";
+                    x.showGridlines = false;
+                    x.addOrderRule([".100 - .125", ".126 - .150", ".151 - .175", ".176 - .200",
+                   ".201 - .225", ".226 - .250", ".251 - .275", ".276 - .300",
+                   ".301 - .325", ".326 - .350"]);
+                   
+                   var y = myChart.addMeasureAxis("y", "Home Runs");
+                   y.title = "Average Home Runs"
+                   y.showGridlines = false;
+                   y.fontSize = "auto";
+                   mySeries = myChart.addSeries("batting", dimple.plot.scatter);
+                   mySeries2 = myChart.addSeries("batting", dimple.plot.line);
+                   mySeries.aggregate = dimple.aggregateMethod.avg;
+                   mySeries2.aggregate = dimple.aggregateMethod.avg;
+          
+                   var myLegend = myChart.addLegend(450, 500, 100, 100, "left", mySeries);
+                   myLegend.fontSize = "auto";
+                   myChart.draw(500);
+                   display_weight = true;
+                   d3.select("#btn").text("Switch to Weight");
+                   d3.select("body h2")
+                     .text("Average HRs for Batting Average Categories by Handedness of Player");
+                }
+                                
+});
         };
       </script>
   </head>
+ 
 <body>
   <script type="text/javascript">
   /*
@@ -76,9 +180,9 @@
                                     height: +d.height,
                                     weight: +d.weight,
                                     avg: +d.avg,
-                                    HR: +d.HR,
-                                    avg_cat: d.avg_cat,
-                                    weight_cat: d.weight_cat,
+                                    'Home Runs': +d.HR,
+                                    'Batting Average': d.avg_cat,
+                                    'Weight Classification': d.weight_cat,
                                     batting: d.batting
                                 };
                             },
