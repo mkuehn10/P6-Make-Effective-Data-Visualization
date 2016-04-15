@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://dimplejs.org/dist/dimple.v2.1.6.min.js"></script>
+  
+  <style>
+    h2 {
+        text-align: left;
+        margin-left: 100px;
+    }
+  </style>
+    <script type="text/javascript">
+      function draw(data) {
+      
+      /*
+        D3.js setup code
+      */
+
+          "use strict";
+          var margin = 75,
+              width = 1500 - margin,
+              height = 800 - margin;
+          
+          debugger;
+          
+          d3.select("body")
+            .append("h2")
+            .text("Total HRs for Batting Average Categories by Type of Batter (Left, Right, Switch)");
+          var svg = d3.select("body")
+            .append("svg")
+              .attr("width", width + margin)
+              .attr("height", height + margin)
+            .append('g')
+                .attr('class','chart');
+            
+      /*
+        Dimple.js Chart construction code
+      */
+
+          var myChart = new dimple.chart(svg, data);
+          var x = myChart.addCategoryAxis("x", "avg_cat");
+          x.addOrderRule(["[0.1,0.125]", "(0.125,0.15]", "(0.15,0.175]", 
+                          "(0.175,0.2]", "(0.2,0.225]", "(0.225,0.25]",
+                          "(0.25,0.275]", "(0.275,0.3]", "(0.3,0.325]", 
+                          "(0.325,0.35]"])
+          var y = myChart.addMeasureAxis("y", "HR");
+          //x.ticks = 5;
+          //y.ticks = 5;
+          //var z = myChart.addAxis("z", "avg_cat")
+          //var c = myChart.addColorAxis("HR", null)
+          //x.dateParseFormat = "%Y";
+          //x.tickFormat = "%Y";
+          //x.timeInterval = 4;
+         // myChart.addSeries(null, dimple.plot.line);
+          var mySeries = myChart.addSeries("batting", dimple.plot.scatter);
+          var mySeries2 = myChart.addSeries("batting", dimple.plot.line);
+          mySeries.aggregate = dimple.aggregateMethod.avg;
+          mySeries2.aggregate = dimple.aggregateMethod.avg;
+          myChart.addLegend(500, 500, 100, 100)
+          myChart.draw();
+        };
+      </script>
+  </head>
+<body>
+  <script type="text/javascript">
+  /*
+    Use D3 (not dimple.js) to load the CSV file
+    and pass the contents of it to the draw function
+    */
+  d3.csv("baseball_data_modified.csv", function(d) {
+                                return {
+                                    name: d.name,
+                                    handedness: d.handedness,
+                                    height: +d.height,
+                                    weight: +d.weight,
+                                    avg: +d.avg,
+                                    HR: +d.HR,
+                                    avg_cat: d.avg_cat,
+                                    weight_cat: d.weight_cat,
+                                    batting: d.batting
+                                };
+                            },
+                            draw);
+  </script>
+</body>
+</html>
